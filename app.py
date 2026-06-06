@@ -397,6 +397,17 @@ st.sidebar.markdown(
     "<small style='color:#8899bb'>Sistem Informasi Titrimetri<br>Kimia Analitik Kuantitatif</small>",
     unsafe_allow_html=True
 )
+st.sidebar.markdown("---")
+st.sidebar.markdown("**👩‍🔬 Tim Penyusun**")
+st.sidebar.markdown("""
+<small style='color:#8899bb;line-height:2;'>
+Airin Syahprina &nbsp;<code>2560559</code><br>
+Aliifah Dhiyaavina &nbsp;<code>2560564</code><br>
+Ike Nurcahya &nbsp;<code>2560642</code><br>
+Nadyanka Amalia &nbsp;<code>2560697</code><br>
+Raudhatul Hanna &nbsp;<code>2560747</code>
+</small>
+""", unsafe_allow_html=True)
 
 d = DATA[jenis_selected]
 
@@ -452,6 +463,32 @@ if menu == "🏠 Beranda":
     st.markdown("<br>", unsafe_allow_html=True)
     st.info("🔎 Gunakan **sidebar** untuk navigasi ke topik dan memilih jenis titrasi.")
 
+    # ── TIM PENYUSUN ──
+    st.markdown("---")
+    st.markdown("### 👩‍🔬 Tim Penyusun")
+    tim = [
+        ("AS", "Airin Syahprina",    "2560559", "#4fc3f7"),
+        ("AD", "Aliifah Dhiyaavina", "2560564", "#f06292"),
+        ("IN", "Ike Nurcahya",       "2560642", "#aed581"),
+        ("NA", "Nadyanka Amalia",    "2560697", "#ffcc80"),
+        ("RH", "Raudhatul Hanna",    "2560747", "#ce93d8"),
+    ]
+    cols = st.columns(5)
+    for col, (inisial, nama, nim, warna) in zip(cols, tim):
+        with col:
+            st.markdown(f"""
+            <div style='background:#111827;border:1px solid #2a3a5c;border-top:3px solid {warna};
+            border-radius:14px;padding:1.2rem 1rem;text-align:center;'>
+            <div style='width:48px;height:48px;border-radius:50%;
+            background:linear-gradient(135deg,{warna},{warna}88);
+            display:flex;align-items:center;justify-content:center;
+            font-weight:700;font-size:1rem;color:#0a0e1a;margin:0 auto .8rem;'>
+            {inisial}</div>
+            <div style='font-weight:600;color:#e8edf5;font-size:.88rem;line-height:1.3'>{nama}</div>
+            <div style='font-family:monospace;font-size:.75rem;color:{warna};margin-top:.3rem'>NIM {nim}</div>
+            </div>""", unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("### Tentang Titrimetri")
     c1,c2 = st.columns(2)
     with c1:
