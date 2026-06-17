@@ -71,6 +71,75 @@ h1,h2,h3 { font-family: 'Playfair Display', serif !important; }
   font-weight: 600;
   margin: .2rem;
 }
+
+/* ── Kartu Beranda (jenis titrasi) — ukuran seragam ── */
+.home-card {
+  background: #111827;
+  border: 1px solid #2a3a5c;
+  border-radius: 12px;
+  padding: 1.2rem;
+  text-align: center;
+  height: 190px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.home-card .hc-emoji { font-size: 2rem; line-height: 1.2; }
+.home-card .hc-title { font-weight: 700; font-size: 1rem; margin-top: .2rem; }
+.home-card .hc-desc {
+  font-size: .8rem;
+  color: #8899bb;
+  margin-top: .5rem;
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+/* ── Kartu Tim Penyusun — ukuran seragam ── */
+.team-card {
+  background: #111827;
+  border: 1px solid #2a3a5c;
+  border-radius: 14px;
+  padding: 1.2rem 1rem;
+  text-align: center;
+  height: 175px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ── Navigasi cepat di layar utama ── */
+.nav-card-caption {
+  color: #8899bb;
+  font-size: .72rem;
+  text-align: center;
+  margin-top: -.3rem;
+  margin-bottom: .9rem;
+}
+
+/* ── Tabel fasa zat dengan font lebih kecil pada keterangan ── */
+.fasa-table { width: 100%; border-collapse: collapse; margin-top: .5rem; }
+.fasa-table th {
+  background: #1c2740;
+  color: #4fc3f7;
+  padding: .6rem .9rem;
+  text-align: left;
+  font-size: .85rem;
+  border-bottom: 1px solid #2a3a5c;
+}
+.fasa-table td {
+  padding: .6rem .9rem;
+  border-bottom: 1px solid #1c2740;
+  color: #e8edf5;
+  font-size: .85rem;
+  vertical-align: top;
+}
+.fasa-table td.ket {
+  font-size: .72rem;
+  color: #aac0dd;
+  line-height: 1.4;
+}
+.fasa-table tr:hover td { background: #16203a; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -372,16 +441,39 @@ DATA = {
 }
 
 # ─────────────────────────────────────────────
+# DAFTAR MENU NAVIGASI
+# (dipakai untuk sidebar maupun bagan navigasi di layar utama)
+# ─────────────────────────────────────────────
+MENU_ITEMS = [
+    ("🏠 Beranda", "Halaman utama & ringkasan"),
+    ("📚 Jenis & Deskripsi", "Subtipe & indikator titrasi"),
+    ("🔧 Alat & Bahan", "Alat lab & reagen kimia"),
+    ("🧮 Rumus & Formula", "Rumus perhitungan kadar"),
+    ("⚗ Reaksi & Fasa", "Persamaan reaksi & fasa zat"),
+    ("📋 Bagan Kerja", "Langkah kerja praktikum"),
+    ("📊 Analisis & Kadar", "Kadar teoritis & akurasi"),
+    ("🖩 Kalkulator Titrasi", "Hitung kadar analit otomatis"),
+]
+MENU_LABELS = [m[0] for m in MENU_ITEMS]
+
+def go_to(label):
+    """Pindah halaman dari tombol navigasi cepat di layar utama."""
+    st.session_state["menu"] = label
+    st.rerun()
+
+# ─────────────────────────────────────────────
 # SIDEBAR
 # ─────────────────────────────────────────────
+if "menu" not in st.session_state:
+    st.session_state["menu"] = MENU_LABELS[0]
+
 st.sidebar.markdown("## ⚗ Titrimetri")
 st.sidebar.markdown("---")
 
 menu = st.sidebar.radio(
     "Navigasi",
-    ["🏠 Beranda", "📚 Jenis & Deskripsi", "🔧 Alat & Bahan",
-     "🧮 Rumus & Formula", "⚗ Reaksi & Fasa", "📋 Bagan Kerja",
-     "📊 Analisis & Kadar", "🖩 Kalkulator Titrasi"],
+    MENU_LABELS,
+    key="menu",
 )
 
 st.sidebar.markdown("---")
@@ -449,21 +541,33 @@ if menu == "🏠 Beranda":
       <p>Referensi lengkap kimia analitik kuantitatif — jenis, alat, rumus, reaksi, fasa, bagan kerja, dan analisis hasil</p>
     </div>""", unsafe_allow_html=True)
 
+    # ── 4 KARTU JENIS TITRASI (ukuran seragam via class .home-card) ──
     col1, col2, col3, col4 = st.columns(4)
-    for col, (k, v) in zip([col1,col2,col3,col4], DATA.items()):
+    for col, (k, v) in zip([col1, col2, col3, col4], DATA.items()):
         with col:
             st.markdown(f"""
-            <div style='background:#111827;border:1px solid #2a3a5c;border-top:3px solid {v["warna"]};
-            border-radius:12px;padding:1.2rem;text-align:center;'>
-            <div style='font-size:2rem'>{v["emoji"]}</div>
-            <b style='color:{v["warna"]}'>{k}</b>
-            <p style='font-size:.82rem;color:#8899bb;margin-top:.5rem'>{v["deskripsi"][:80]}...</p>
+            <div class='home-card' style='border-top:3px solid {v["warna"]}'>
+            <div class='hc-emoji'>{v["emoji"]}</div>
+            <div class='hc-title' style='color:{v["warna"]}'>{k}</div>
+            <div class='hc-desc'>{v["deskripsi"][:80]}...</div>
             </div>""", unsafe_allow_html=True)
 
+    # ── BAGAN NAVIGASI CEPAT DI LAYAR UTAMA ──
     st.markdown("<br>", unsafe_allow_html=True)
-    st.info("🔎 Gunakan **sidebar** untuk navigasi ke topik dan memilih jenis titrasi.")
+    st.markdown("### 🧭 Navigasi Cepat")
+    st.caption("Klik salah satu tombol untuk langsung membuka topik, tanpa perlu membuka sidebar.")
 
-    # ── TIM PENYUSUN ──
+    nav_items = MENU_ITEMS[1:]  # semua menu kecuali Beranda
+    nav_cols = st.columns(4)
+    for i, (label, desc) in enumerate(nav_items):
+        with nav_cols[i % 4]:
+            if st.button(label, key=f"navbtn_{i}", use_container_width=True):
+                go_to(label)
+            st.markdown(f"<div class='nav-card-caption'>{desc}</div>", unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # ── TIM PENYUSUN (ukuran seragam via class .team-card) ──
     st.markdown("---")
     st.markdown("### 👩‍🔬 Tim Penyusun")
     tim = [
@@ -477,8 +581,7 @@ if menu == "🏠 Beranda":
     for col, (inisial, nama, nim, warna) in zip(cols, tim):
         with col:
             st.markdown(f"""
-            <div style='background:#111827;border:1px solid #2a3a5c;border-top:3px solid {warna};
-            border-radius:14px;padding:1.2rem 1rem;text-align:center;'>
+            <div class='team-card' style='border-top:3px solid {warna}'>
             <div style='width:48px;height:48px;border-radius:50%;
             background:linear-gradient(135deg,{warna},{warna}88);
             display:flex;align-items:center;justify-content:center;
@@ -602,15 +705,18 @@ elif menu == "⚗ Reaksi & Fasa":
 
     st.markdown("---")
     st.markdown("### Fasa Zat dalam Titrasi")
-    tabel_fase = {"Zat": [], "Fasa": [], "Keterangan": []}
-    for zat, fasa, ket in d["fase"]:
-        tabel_fase["Zat"].append(zat)
-        tabel_fase["Fasa"].append(fasa)
-        tabel_fase["Keterangan"].append(ket)
 
-    import pandas as pd
-    df_fase = pd.DataFrame(tabel_fase)
-    st.dataframe(df_fase, use_container_width=True, hide_index=True)
+    # Tabel HTML kustom — font kolom "Keterangan" diperkecil (lihat class .fasa-table td.ket)
+    rows_html = ""
+    for zat, fasa, ket in d["fase"]:
+        rows_html += f"<tr><td>{zat}</td><td>{fasa}</td><td class='ket'>{ket}</td></tr>"
+
+    st.markdown(f"""
+    <table class='fasa-table'>
+    <thead><tr><th>Zat</th><th>Fasa</th><th>Keterangan</th></tr></thead>
+    <tbody>{rows_html}</tbody>
+    </table>
+    """, unsafe_allow_html=True)
 
     st.markdown("---")
     st.markdown("### 📖 Notasi Fasa")
