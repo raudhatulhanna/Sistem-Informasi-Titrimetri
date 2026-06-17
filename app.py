@@ -468,110 +468,127 @@ def reaction_card(rtype, rxn, color="#f06292"):
 # ─────────────────────────────────────────────
 
 if menu == "🏠 Beranda":
+
     st.markdown("""
     <div class='hero-box'>
       <h1>⚗ Sistem Informasi Titrimetri</h1>
-      <p>Referensi lengkap kimia analitik kuantitatif — jenis, alat, rumus, reaksi, fasa, bagan kerja, dan analisis hasil</p>
-    </div>""", unsafe_allow_html=True)
+      <p>Referensi lengkap kimia analitik kuantitatif — jenis, alat, rumus,
+      reaksi, fasa, bagan kerja, dan analisis hasil</p>
+    </div>
+    """, unsafe_allow_html=True)
+
     st.markdown("## 🧭 Navigasi Cepat")
 
-n1,n2,n3,n4 = st.columns(4)
+    n1, n2, n3, n4 = st.columns(4)
 
-with n1:
-    if st.button("📚 Jenis Titrasi", use_container_width=True):
-        st.session_state.menu = "📚 Jenis & Deskripsi"
-        st.rerun()
+    with n1:
+        if st.button("📚 Jenis Titrasi", use_container_width=True):
+            st.session_state.menu = "📚 Jenis & Deskripsi"
+            st.rerun()
 
-with n2:
-    if st.button("⚗ Reaksi & Fasa", use_container_width=True):
-        st.session_state.menu = "⚗ Reaksi & Fasa"
-        st.rerun()
+    with n2:
+        if st.button("⚗ Reaksi & Fasa", use_container_width=True):
+            st.session_state.menu = "⚗ Reaksi & Fasa"
+            st.rerun()
 
-with n3:
-    if st.button("📋 Bagan Kerja", use_container_width=True):
-        st.session_state.menu = "📋 Bagan Kerja"
-        st.rerun()
+    with n3:
+        if st.button("📋 Bagan Kerja", use_container_width=True):
+            st.session_state.menu = "📋 Bagan Kerja"
+            st.rerun()
 
-with n4:
-    if st.button("🖩 Kalkulator", use_container_width=True):
-        st.session_state.menu = "🖩 Kalkulator Titrasi"
-        st.rerun()
+    with n4:
+        if st.button("🖩 Kalkulator", use_container_width=True):
+            st.session_state.menu = "🖩 Kalkulator Titrasi"
+            st.rerun()
+
+    st.markdown("---")
 
     col1, col2, col3, col4 = st.columns(4)
-for col, (k, v) in zip([col1,col2,col3,col4], DATA.items()):
-    with col:
-        st.markdown(f"""
-        <div class='home-card'
-        style='border-top:3px solid {v["warna"]};'>
 
-        <div style='font-size:2rem'>
-        {v["emoji"]}
-        </div>
+    for col, (k, v) in zip(
+        [col1, col2, col3, col4],
+        DATA.items()
+    ):
+        with col:
+            st.markdown(f"""
+            <div class='home-card'
+            style='border-top:3px solid {v["warna"]};'>
 
-        <b style='color:{v["warna"]}'>
-        {k}
-        </b>
+                <div style='font-size:2rem'>
+                    {v["emoji"]}
+                </div>
 
-        <p style='font-size:.82rem;color:#8899bb;margin-top:.5rem'>
-        {v["deskripsi"][:80]}...
-        </p>
+                <b style='color:{v["warna"]}'>
+                    {k}
+                </b>
 
-        </div>
-        """, unsafe_allow_html=True)
+                <p style='font-size:.82rem;
+                          color:#8899bb;
+                          margin-top:.5rem'>
+                    {v["deskripsi"][:80]}...
+                </p>
+
+            </div>
+            """, unsafe_allow_html=True)
+
     st.markdown("<br>", unsafe_allow_html=True)
-    st.info("🔎 Gunakan **sidebar** untuk navigasi ke topik dan memilih jenis titrasi.")
 
-    # ── TIM PENYUSUN ──
+    st.info(
+        "🔎 Gunakan sidebar atau tombol navigasi cepat untuk membuka materi."
+    )
+
+    # Tim Penyusun
     st.markdown("---")
     st.markdown("### 👩‍🔬 Tim Penyusun")
+
     tim = [
-        ("AS", "Airin Syahprina",    "2560559", "#4fc3f7"),
+        ("AS", "Airin Syahprina", "2560559", "#4fc3f7"),
         ("AD", "Aliifah Dhiyaavina", "2560564", "#f06292"),
-        ("IN", "Ike Nurcahya",       "2560642", "#aed581"),
-        ("NA", "Nadyanka Amalia",    "2560697", "#ffcc80"),
-        ("RH", "Raudhatul Hanna",    "2560747", "#ce93d8"),
+        ("IN", "Ike Nurcahya", "2560642", "#aed581"),
+        ("NA", "Nadyanka Amalia", "2560697", "#ffcc80"),
+        ("RH", "Raudhatul Hanna", "2560747", "#ce93d8"),
     ]
+
     cols = st.columns(5)
+
     for col, (inisial, nama, nim, warna) in zip(cols, tim):
         with col:
             st.markdown(f"""
-            <div style='background:#111827;border:1px solid #2a3a5c;border-top:3px solid {warna};
-            border-radius:14px;padding:1.2rem 1rem;text-align:center;'>
-            <div style='width:48px;height:48px;border-radius:50%;
-            background:linear-gradient(135deg,{warna},{warna}88);
-            display:flex;align-items:center;justify-content:center;
-            font-weight:700;font-size:1rem;color:#0a0e1a;margin:0 auto .8rem;'>
-            {inisial}</div>
-            <div style='font-weight:600;color:#e8edf5;font-size:.88rem;line-height:1.3'>{nama}</div>
-            <div style='font-family:monospace;font-size:.75rem;color:{warna};margin-top:.3rem'>NIM {nim}</div>
-            </div>""", unsafe_allow_html=True)
+            <div style="
+                background:#111827;
+                border:1px solid #2a3a5c;
+                border-top:3px solid {warna};
+                border-radius:14px;
+                padding:1rem;
+                text-align:center;">
 
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("### Tentang Titrimetri")
-    c1,c2 = st.columns(2)
-    with c1:
-        st.markdown("""
-        **Titrimetri** adalah metode analisis kimia kuantitatif yang menentukan konsentrasi suatu analit
-        dengan cara menambahkan larutan baku (titran) yang konsentrasinya sudah diketahui secara tepat,
-        hingga tercapai titik ekivalen.
+                <div style="
+                    width:48px;
+                    height:48px;
+                    border-radius:50%;
+                    background:{warna};
+                    margin:auto;
+                    line-height:48px;
+                    font-weight:bold;
+                    color:black;">
+                    {inisial}
+                </div>
 
-        **Persyaratan titrasi yang baik:**
-        - Reaksi berlangsung cepat dan kuantitatif
-        - Stoikiometri reaksi harus jelas
-        - Ada cara deteksi titik akhir yang tepat
-        - Tidak ada reaksi samping yang mengganggu
-        """)
-    with c2:
-        st.markdown("""
-        **4 Jenis Utama:**
+                <div style="
+                    margin-top:.7rem;
+                    color:white;
+                    font-size:.85rem;">
+                    {nama}
+                </div>
 
-        | Jenis | Dasar Reaksi | Contoh Titran |
-        |---|---|---|
-        | Asam–Basa | Netralisasi H⁺/OH⁻ | NaOH, HCl |
-        | Redoks | Transfer elektron | KMnO₄, Na₂S₂O₃ |
-        | Kompleksometri | Pembentukan kelat | EDTA |
-        | Pengendapan | Endapan sukar larut | AgNO₃ |
-        """)
+                <div style="
+                    color:#8899bb;
+                    font-size:.75rem;">
+                    {nim}
+                </div>
+
+            </div>
+            """, unsafe_allow_html=True)
         
 elif menu == "📚 Jenis & Deskripsi":
     color = d["warna"]
