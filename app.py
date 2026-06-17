@@ -572,6 +572,7 @@ for col, (k, v) in zip([col1,col2,col3,col4], DATA.items()):
         | Kompleksometri | Pembentukan kelat | EDTA |
         | Pengendapan | Endapan sukar larut | AgNO₃ |
         """)
+        
 elif menu == "📚 Jenis & Deskripsi":
     color = d["warna"]
     st.markdown(f"# {d['emoji']} Titrasi {jenis_selected}")
