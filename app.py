@@ -71,6 +71,17 @@ h1,h2,h3 { font-family: 'Playfair Display', serif !important; }
   font-weight: 600;
   margin: .2rem;
 }
+.home-card{
+  background:#111827;
+  border:1px solid #2a3a5c;
+  border-radius:12px;
+  padding:1.2rem;
+  text-align:center;
+  min-height:220px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -377,13 +388,27 @@ DATA = {
 st.sidebar.markdown("## ⚗ Titrimetri")
 st.sidebar.markdown("---")
 
-menu = st.sidebar.radio(
+if "menu" not in st.session_state:
+    st.session_state.menu = "🏠 Beranda"
+
+daftar_menu = [
+    "🏠 Beranda",
+    "📚 Jenis & Deskripsi",
+    "🔧 Alat & Bahan",
+    "🧮 Rumus & Formula",
+    "⚗ Reaksi & Fasa",
+    "📋 Bagan Kerja",
+    "📊 Analisis & Kadar",
+    "🖩 Kalkulator Titrasi"
+]
+
+menu = st.sidebar.selectbox(
     "Navigasi",
-    ["🏠 Beranda", "📚 Jenis & Deskripsi", "🔧 Alat & Bahan",
-     "🧮 Rumus & Formula", "⚗ Reaksi & Fasa", "📋 Bagan Kerja",
-     "📊 Analisis & Kadar", "🖩 Kalkulator Titrasi"],
+    daftar_menu,
+    index=daftar_menu.index(st.session_state.menu)
 )
 
+st.session_state.menu = menu
 st.sidebar.markdown("---")
 st.sidebar.markdown("**Filter Jenis Titrasi**")
 jenis_selected = st.sidebar.selectbox(
@@ -448,18 +473,51 @@ if menu == "🏠 Beranda":
       <h1>⚗ Sistem Informasi Titrimetri</h1>
       <p>Referensi lengkap kimia analitik kuantitatif — jenis, alat, rumus, reaksi, fasa, bagan kerja, dan analisis hasil</p>
     </div>""", unsafe_allow_html=True)
+    st.markdown("## 🧭 Navigasi Cepat")
+
+n1,n2,n3,n4 = st.columns(4)
+
+with n1:
+    if st.button("📚 Jenis Titrasi", use_container_width=True):
+        st.session_state.menu = "📚 Jenis & Deskripsi"
+        st.rerun()
+
+with n2:
+    if st.button("⚗ Reaksi & Fasa", use_container_width=True):
+        st.session_state.menu = "⚗ Reaksi & Fasa"
+        st.rerun()
+
+with n3:
+    if st.button("📋 Bagan Kerja", use_container_width=True):
+        st.session_state.menu = "📋 Bagan Kerja"
+        st.rerun()
+
+with n4:
+    if st.button("🖩 Kalkulator", use_container_width=True):
+        st.session_state.menu = "🖩 Kalkulator Titrasi"
+        st.rerun()
 
     col1, col2, col3, col4 = st.columns(4)
     for col, (k, v) in zip([col1,col2,col3,col4], DATA.items()):
-        with col:
-            st.markdown(f"""
-            <div style='background:#111827;border:1px solid #2a3a5c;border-top:3px solid {v["warna"]};
-            border-radius:12px;padding:1.2rem;text-align:center;'>
-            <div style='font-size:2rem'>{v["emoji"]}</div>
-            <b style='color:{v["warna"]}'>{k}</b>
-            <p style='font-size:.82rem;color:#8899bb;margin-top:.5rem'>{v["deskripsi"][:80]}...</p>
-            </div>""", unsafe_allow_html=True)
+    with col:
+        st.markdown(f"""
+        <div class='home-card'
+        style='border-top:3px solid {v["warna"]};'>
 
+        <div style='font-size:2rem'>
+        {v["emoji"]}
+        </div>
+
+        <b style='color:{v["warna"]}'>
+        {k}
+        </b>
+
+        <p style='font-size:.82rem;color:#8899bb;margin-top:.5rem'>
+        {v["deskripsi"][:80]}...
+        </p>
+
+        </div>
+        """, unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
     st.info("🔎 Gunakan **sidebar** untuk navigasi ke topik dan memilih jenis titrasi.")
 
@@ -610,7 +668,29 @@ elif menu == "⚗ Reaksi & Fasa":
 
     import pandas as pd
     df_fase = pd.DataFrame(tabel_fase)
-    st.dataframe(df_fase, use_container_width=True, hide_index=True)
+    st.markdown("## 🧭 Navigasi Cepat")
+
+n1,n2,n3,n4 = st.columns(4)
+
+with n1:
+    if st.button("📚 Jenis Titrasi", use_container_width=True):
+        st.session_state.menu = "📚 Jenis & Deskripsi"
+        st.rerun()
+
+with n2:
+    if st.button("⚗ Reaksi & Fasa", use_container_width=True):
+        st.session_state.menu = "⚗ Reaksi & Fasa"
+        st.rerun()
+
+with n3:
+    if st.button("📋 Bagan Kerja", use_container_width=True):
+        st.session_state.menu = "📋 Bagan Kerja"
+        st.rerun()
+
+with n4:
+    if st.button("🖩 Kalkulator", use_container_width=True):
+        st.session_state.menu = "🖩 Kalkulator Titrasi"
+        st.rerun()
 
     st.markdown("---")
     st.markdown("### 📖 Notasi Fasa")
