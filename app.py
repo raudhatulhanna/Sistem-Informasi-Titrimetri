@@ -498,7 +498,7 @@ with n4:
         st.rerun()
 
     col1, col2, col3, col4 = st.columns(4)
-    for col, (k, v) in zip([col1,col2,col3,col4], DATA.items()):
+for col, (k, v) in zip([col1,col2,col3,col4], DATA.items()):
     with col:
         st.markdown(f"""
         <div class='home-card'
