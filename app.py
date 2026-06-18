@@ -467,25 +467,43 @@ def reaction_card(rtype, rxn, color="#f06292"):
     </div>""", unsafe_allow_html=True)
 
 
-def quick_nav():
-    """Navigasi cepat 4 tombol — dipakai di beberapa halaman."""
-    n1, n2, n3, n4 = st.columns(4)
-    with n1:
-        if st.button("📚 Jenis Titrasi", use_container_width=True, key="nav_jenis"):
-            st.session_state.menu = "📚 Jenis & Deskripsi"
-            st.rerun()
-    with n2:
-        if st.button("⚗ Reaksi & Fasa", use_container_width=True, key="nav_reaksi"):
-            st.session_state.menu = "⚗ Reaksi & Fasa"
-            st.rerun()
-    with n3:
-        if st.button("📋 Bagan Kerja", use_container_width=True, key="nav_bagan"):
-            st.session_state.menu = "📋 Bagan Kerja"
-            st.rerun()
-    with n4:
-        if st.button("🖩 Kalkulator", use_container_width=True, key="nav_kalkulator"):
-            st.session_state.menu = "🖩 Kalkulator Titrasi"
-            st.rerun()
+def quick_nav(page_key: str = "default"):
+    """
+    Navigasi cepat 8 tombol (semua menu) — tampil di setiap halaman.
+    page_key harus unik per halaman agar tidak ada duplikat widget key.
+    """
+    st.markdown("---")
+    st.markdown("<small style='color:#8899bb'>🧭 Navigasi Cepat</small>", unsafe_allow_html=True)
+
+    # Baris 1: 4 menu pertama
+    c1, c2, c3, c4 = st.columns(4)
+    nav_items = [
+        ("🏠 Beranda",          "🏠 Beranda"),
+        ("📚 Jenis & Deskripsi","📚 Jenis & Deskripsi"),
+        ("🔧 Alat & Bahan",     "🔧 Alat & Bahan"),
+        ("🧮 Rumus & Formula",  "🧮 Rumus & Formula"),
+        ("⚗ Reaksi & Fasa",    "⚗ Reaksi & Fasa"),
+        ("📋 Bagan Kerja",      "📋 Bagan Kerja"),
+        ("📊 Analisis & Kadar", "📊 Analisis & Kadar"),
+        ("🖩 Kalkulator Titrasi","🖩 Kalkulator Titrasi"),
+    ]
+    cols_row1 = st.columns(4)
+    cols_row2 = st.columns(4)
+    all_cols  = cols_row1 + cols_row2
+
+    for col, (label, target) in zip(all_cols, nav_items):
+        with col:
+            is_active = (menu == target)
+            btn_label = f"**{label}**" if is_active else label
+            if st.button(
+                btn_label,
+                use_container_width=True,
+                key=f"nav_{page_key}_{target}",
+                type="primary" if is_active else "secondary",
+            ):
+                st.session_state.menu = target
+                st.rerun()
+    st.markdown("---")
 
 
 # ─────────────────────────────────────────────
@@ -502,10 +520,8 @@ if menu == "🏠 Beranda":
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("## 🧭 Navigasi Cepat")
-    quick_nav()
+    quick_nav("beranda")
 
-    st.markdown("---")
 
     col1, col2, col3, col4 = st.columns(4)
     for col, (k, v) in zip([col1, col2, col3, col4], DATA.items()):
@@ -551,6 +567,7 @@ if menu == "🏠 Beranda":
 elif menu == "📚 Jenis & Deskripsi":
     color = d["warna"]
     st.markdown(f"# {d['emoji']} Titrasi {jenis_selected}")
+    quick_nav("jenis")
     st.markdown(f"<span style='color:{color}'>{d['deskripsi']}</span>", unsafe_allow_html=True)
     st.markdown("---")
 
@@ -574,7 +591,7 @@ elif menu == "📚 Jenis & Deskripsi":
 elif menu == "🔧 Alat & Bahan":
     color = d["warna"]
     st.markdown(f"# 🔧 Alat & Bahan — Titrasi {jenis_selected}")
-    st.markdown("---")
+    quick_nav("alat")
 
     col1, col2 = st.columns(2)
     with col1:
@@ -601,7 +618,7 @@ elif menu == "🔧 Alat & Bahan":
 elif menu == "🧮 Rumus & Formula":
     color = d["warna"]
     st.markdown(f"# 🧮 Rumus Titrasi {jenis_selected}")
-    st.markdown("---")
+    quick_nav("rumus")
 
     for label, rumus in d["rumus"]:
         formula_card(label, rumus)
@@ -630,7 +647,7 @@ elif menu == "🧮 Rumus & Formula":
 elif menu == "⚗ Reaksi & Fasa":
     color = d["warna"]
     st.markdown(f"# ⚗ Reaksi Kimia & Fasa — Titrasi {jenis_selected}")
-    st.markdown("---")
+    quick_nav("reaksi")
 
     st.markdown("### Persamaan Reaksi")
     for rtype, rxn in d["reaksi"]:
@@ -660,7 +677,7 @@ elif menu == "⚗ Reaksi & Fasa":
 elif menu == "📋 Bagan Kerja":
     color = d["warna"]
     st.markdown(f"# 📋 Bagan Kerja — Titrasi {jenis_selected}")
-    st.markdown("---")
+    quick_nav("bagan")
 
     for i, langkah in enumerate(d["bagan"], 1):
         if i < len(d["bagan"]):
@@ -687,7 +704,7 @@ elif menu == "📋 Bagan Kerja":
 elif menu == "📊 Analisis & Kadar":
     color = d["warna"]
     st.markdown(f"# 📊 Analisis Hasil & Kadar Teoritis — {jenis_selected}")
-    st.markdown("---")
+    quick_nav("analisis")
 
     st.markdown("### 📐 Kadar Teoritis Analit")
     df_teoritis = pd.DataFrame(d["kadar_teoritis"], columns=["Senyawa / Sampel", "Kadar Teoritis (%)"])
@@ -753,7 +770,7 @@ elif menu == "📊 Analisis & Kadar":
 elif menu == "🖩 Kalkulator Titrasi":
     st.markdown("# 🖩 Kalkulator Titrasi")
     st.markdown("Hitung kadar analit berdasarkan data titrasi secara otomatis.")
-    st.markdown("---")
+    quick_nav("kalkulator")
 
     col_in, col_out = st.columns([1, 1])
 
