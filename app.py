@@ -390,6 +390,8 @@ st.sidebar.markdown("---")
 
 if "menu" not in st.session_state:
     st.session_state.menu = "🏠 Beranda"
+if "jenis" not in st.session_state:
+    st.session_state.jenis = list(DATA.keys())[0]
 
 daftar_menu = [
     "🏠 Beranda",
@@ -411,11 +413,14 @@ st.session_state.menu = menu
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("**Filter Jenis Titrasi**")
-jenis_selected = st.sidebar.selectbox(
+jenis_sidebar = st.sidebar.selectbox(
     "Pilih Jenis",
     list(DATA.keys()),
+    index=list(DATA.keys()).index(st.session_state.jenis),
     label_visibility="collapsed",
 )
+st.session_state.jenis = jenis_sidebar
+jenis_selected = st.session_state.jenis
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
@@ -469,40 +474,52 @@ def reaction_card(rtype, rxn, color="#f06292"):
 
 def quick_nav(page_key: str = "default"):
     """
-    Navigasi cepat 8 tombol (semua menu) — tampil di setiap halaman.
-    page_key harus unik per halaman agar tidak ada duplikat widget key.
+    Navigasi cepat: pilih jenis titrasi + semua menu.
+    Tampil di setiap halaman. page_key unik per halaman.
     """
     st.markdown("---")
-    st.markdown("<small style='color:#8899bb'>🧭 Navigasi Cepat</small>", unsafe_allow_html=True)
 
-    # Baris 1: 4 menu pertama
-    c1, c2, c3, c4 = st.columns(4)
+    # ── Pilih Jenis Titrasi ──────────────────
+    st.markdown("<small style='color:#8899bb'>🔬 Jenis Titrasi</small>", unsafe_allow_html=True)
+    jenis_cols = st.columns(len(DATA))
+    for col, (nama, info) in zip(jenis_cols, DATA.items()):
+        with col:
+            is_active = (st.session_state.jenis == nama)
+            if st.button(
+                f"{info['emoji']} {nama}",
+                use_container_width=True,
+                key=f"jenis_{page_key}_{nama}",
+                type="primary" if is_active else "secondary",
+            ):
+                st.session_state.jenis = nama
+                st.rerun()
+
+    # ── Pilih Menu ───────────────────────────
+    st.markdown("<small style='color:#8899bb'>🧭 Navigasi Menu</small>", unsafe_allow_html=True)
     nav_items = [
-        ("🏠 Beranda",          "🏠 Beranda"),
-        ("📚 Jenis & Deskripsi","📚 Jenis & Deskripsi"),
-        ("🔧 Alat & Bahan",     "🔧 Alat & Bahan"),
-        ("🧮 Rumus & Formula",  "🧮 Rumus & Formula"),
-        ("⚗ Reaksi & Fasa",    "⚗ Reaksi & Fasa"),
-        ("📋 Bagan Kerja",      "📋 Bagan Kerja"),
-        ("📊 Analisis & Kadar", "📊 Analisis & Kadar"),
+        ("🏠 Beranda",           "🏠 Beranda"),
+        ("📚 Jenis & Deskripsi", "📚 Jenis & Deskripsi"),
+        ("🔧 Alat & Bahan",      "🔧 Alat & Bahan"),
+        ("🧮 Rumus & Formula",   "🧮 Rumus & Formula"),
+        ("⚗ Reaksi & Fasa",     "⚗ Reaksi & Fasa"),
+        ("📋 Bagan Kerja",       "📋 Bagan Kerja"),
+        ("📊 Analisis & Kadar",  "📊 Analisis & Kadar"),
         ("🖩 Kalkulator Titrasi","🖩 Kalkulator Titrasi"),
     ]
     cols_row1 = st.columns(4)
     cols_row2 = st.columns(4)
-    all_cols  = cols_row1 + cols_row2
-
-    for col, (label, target) in zip(all_cols, nav_items):
+    for col, (label, target) in zip(cols_row1 + cols_row2, nav_items):
         with col:
             is_active = (menu == target)
-            btn_label = f"**{label}**" if is_active else label
             if st.button(
-                btn_label,
+                label,
                 use_container_width=True,
                 key=f"nav_{page_key}_{target}",
                 type="primary" if is_active else "secondary",
             ):
                 st.session_state.menu = target
                 st.rerun()
+
     st.markdown("---")
 
 
