@@ -680,11 +680,25 @@ elif menu == "⚗ Reaksi & Fasa":
 
     st.markdown("---")
     st.markdown("### 📖 Notasi Fasa")
+    notasi = [
+        ("(aq)", "Aqueous", "Terlarut dalam air", "#4fc3f7"),
+        ("(s)",  "Solid",   "Padatan / endapan",  "#ffcc80"),
+        ("(l)",  "Liquid",  "Cair murni (seperti H₂O)", "#aed581"),
+        ("(g)",  "Gas",     "Fase gas",           "#f06292"),
+    ]
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric("(aq)", "Terlarut dalam air")
-    col2.metric("(s)",  "Padatan / endapan")
-    col3.metric("(l)",  "Cair murni (seperti H₂O)")
-    col4.metric("(g)",  "Gas")
+    for col, (simbol, nama, deskripsi, warna) in zip([col1, col2, col3, col4], notasi):
+        with col:
+            st.markdown(f"""
+            <div style='background:#1c2740;border:1px solid {warna}55;border-radius:12px;
+                        padding:1rem 1.2rem;text-align:center;'>
+                <div style='font-family:DM Mono,monospace;font-size:1.5rem;
+                            font-weight:700;color:{warna};'>{simbol}</div>
+                <div style='color:white;font-size:.9rem;font-weight:600;
+                            margin:.3rem 0 .2rem;'>{nama}</div>
+                <div style='color:#8899bb;font-size:.8rem;'>{deskripsi}</div>
+            </div>
+            """, unsafe_allow_html=True)
 
 # ── 6. BAGAN KERJA ──────────────────────────
 elif menu == "📋 Bagan Kerja":
