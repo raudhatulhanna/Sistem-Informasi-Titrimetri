@@ -294,10 +294,10 @@ DATA = {
             "Analisis sampel: ulangi prosedur di atas dengan sampel air/logam",
         ],
         "rumus": [
-            ("Rasio Reaksi", "M_logam : M_EDTA = 1 : 1"),
+            ("Rasio Reaksi", "mol M^n+ : mol EDTA (Y⁴⁻) = 1 : 1, untuk semua n (kompleks kelat 1:1)"),
             ("mmol Logam", "mmol = M_EDTA × V_EDTA (mL)"),
             ("Kadar Logam (mg/L)", "= M_EDTA × V_EDTA(mL) × BM_logam × 1000 / V_sampel(mL)"),
-            ("Kesadahan Total (mg/L CaCO₃)", "= M_EDTA × V_EDTA × 100 × 1000 / V_sampel"),
+            ("Kesadahan Total (mg/L CaCO₃)", "= M_EDTA × V_EDTA × BM_CaCO₃(100.09) × 1000 / V_sampel"),
             ("Kesadahan (°dH Jerman)", "1 °dH = 10 mg/L CaO = 17.8 mg/L CaCO₃"),
         ],
         "kadar_teoritis": [
@@ -369,7 +369,8 @@ DATA = {
         "rumus": [
             ("Normalitas AgNO₃", "N = (m_NaCl × 1000) / (58.44 × V_AgNO₃)"),
             ("% Cl⁻ dalam Sampel", "% Cl⁻ = (N_AgNO₃ × V_netto × 35.45) / (1000 × m_sampel) × 100%"),
-            ("Metode Volhard – V AgNO₃ berlebih", "V_Ag(kelebihan) = V_Ag_total – V_SCN × (N_SCN/N_Ag)"),
+            ("Metode Volhard – V Ag⁺ yang bereaksi dengan Cl⁻",
+             "V_Ag(bereaksi dgn Cl⁻) = V_Ag_total – V_SCN × (N_SCN/N_Ag)\n[V_SCN×(N_SCN/N_Ag) = volume Ag⁺ SISA yang dititrasi balik dgn SCN⁻]"),
             ("Ksp – Kelarutan AgCl", "Ksp = [Ag⁺][Cl⁻] = 1.8×10⁻¹⁰"),
             ("Molaritas AgNO₃ dari massa", "M = m(g) / (BM × V_L)"),
         ],
@@ -656,6 +657,16 @@ elif menu == "🧮 Rumus & Formula":
         | val| Valensi / faktor ekivalen | –       |
         """)
 
+    if jenis_selected == "Kompleksometri":
+        st.info(
+            "ℹ️ **Catatan khusus Kompleksometri:** EDTA selalu bereaksi 1:1 dengan ion "
+            "logam berapa pun valensinya (Ca²⁺, Mg²⁺, Zn²⁺, dst.), karena EDTA mengikat "
+            "logam sebagai ligan heksadentat tunggal — bukan berdasarkan jumlah elektron "
+            "atau muatan ion. Karena itu perhitungan kompleksometri memakai **mol/molaritas "
+            "(M × V)**, bukan ekivalen/normalitas (N × V) seperti pada asam-basa, redoks, "
+            "atau pengendapan. Konsep 'berat ekivalen (BE)' tidak relevan di sini."
+        )
+
 # ── 5. REAKSI & FASA ────────────────────────
 elif menu == "⚗ Reaksi & Fasa":
     color = d["warna"]
@@ -819,12 +830,12 @@ elif menu == "🖩 Kalkulator Titrasi":
             ("K₂Cr₂O₇ (BM=294.18, n=6)", 294.18, 6),
         ],
         "Kompleksometri": [
-            ("Ca²⁺ (kalsium)", 40.08, 2),
-            ("Mg²⁺ (magnesium)", 24.31, 2),
-            ("Zn²⁺ (seng)", 65.38, 2),
-            ("Cu²⁺ (tembaga)", 63.55, 2),
-            ("CaCO₃ (sebagai kesadahan)", 100.09, 2),
-            ("Pb²⁺ (timbal)", 207.20, 2),
+            ("Ca²⁺ (kalsium)", 40.08, 1),
+            ("Mg²⁺ (magnesium)", 24.31, 1),
+            ("Zn²⁺ (seng)", 65.38, 1),
+            ("Cu²⁺ (tembaga)", 63.55, 1),
+            ("CaCO₃ (sebagai kesadahan)", 100.09, 1),
+            ("Pb²⁺ (timbal)", 207.20, 1),
         ],
         "Pengendapan": [
             ("Cl⁻ (klorida)", 35.45, 1),
@@ -844,16 +855,30 @@ elif menu == "🖩 Kalkulator Titrasi":
         opt_labels = [o[0] for o in opts] + ["Custom..."]
         analit_choice = st.selectbox("Analit", opt_labels)
 
+        is_kompleks = (jenis_kal == "Kompleksometri")
+
         if analit_choice == "Custom...":
-            bm  = st.number_input("BM Analit (g/mol)", min_value=1.0, value=60.05, step=0.01)
-            val = st.number_input("Valensi / Faktor Ekivalen", min_value=1, value=1)
+            bm = st.number_input("BM/BA Analit (g/mol)", min_value=1.0, value=60.05, step=0.01)
+            if is_kompleks:
+                val = 1  # EDTA selalu bereaksi 1:1 mol dgn ion logam, terlepas dari valensinya
+                st.caption(
+                    "Kompleksometri: rasio reaksi EDTA–logam selalu **1 mol : 1 mol**, "
+                    "berapa pun muatan ion logamnya. Valensi ion tidak memengaruhi perhitungan."
+                )
+            else:
+                val = st.number_input("Valensi / Faktor Ekivalen", min_value=1, value=1)
         else:
             bm  = next(o[1] for o in opts if o[0] == analit_choice)
             val = next(o[2] for o in opts if o[0] == analit_choice)
-            st.info(f"BM = {bm} g/mol | Valensi = {val} | BE = {bm/val:.4f} g/ekivalen")
+            if is_kompleks:
+                st.info(
+                    f"BM = {bm} g/mol | Rasio EDTA : Logam = 1 : 1 mol "
+                    f"(berlaku untuk semua valensi logam)"
+                )
+            else:
+                st.info(f"BM = {bm} g/mol | Valensi = {val} | BE = {bm/val:.4f} g/ekivalen")
 
         # Mode konsentrasi: Kompleksometri pakai Molaritas, lainnya Normalitas
-        is_kompleks = (jenis_kal == "Kompleksometri")
         satuan_konsen = "M (Molaritas)" if is_kompleks else "N (Normalitas)"
 
         st.markdown("**📏 Pembacaan Buret**")
@@ -893,11 +918,11 @@ elif menu == "🖩 Kalkulator Titrasi":
             BE = bm / val
 
             if is_kompleks:
-                # Kompleksometri: M × V(mL) × BM = mg logam  (rasio 1:1)
-                mmol_analit = C_titran * V_titran          # mmol logam
+                # Kompleksometri: M × V(mL) × BM = mg logam  (rasio mol 1:1, TIDAK memakai BE/valensi)
+                mmol_analit = C_titran * V_titran          # mmol logam = mmol EDTA
                 mg_analit   = mmol_analit * bm * f_pengenceran
                 persen      = mg_analit / (m_sampel * 1000) * 100
-                rumus_str   = "mmol logam = M_EDTA × V_EDTA"
+                rumus_str   = "mmol logam = M_EDTA × V_EDTA  (rasio mol 1:1)"
             else:
                 # Asam-Basa / Redoks / Pengendapan: N × V × BE
                 meq_titran  = C_titran * V_titran          # mEkivalen
@@ -920,7 +945,7 @@ elif menu == "🖩 Kalkulator Titrasi":
             if is_kompleks:
                 langkah_hitung = {
                     "V netto titran"    : f"{V_akhir:.2f} – {V_awal:.2f} = {V_titran:.2f} mL",
-                    "mmol EDTA (= mmol logam)": f"{C_titran:.4f} M × {V_titran:.2f} mL = {C_titran*V_titran:.4f} mmol",
+                    "mmol EDTA (= mmol logam, rasio 1:1)": f"{C_titran:.4f} M × {V_titran:.2f} mL = {C_titran*V_titran:.4f} mmol",
                     "mg analit"         : f"{C_titran*V_titran:.4f} × {bm:.3f} × {f_pengenceran:.0f} = {mg_analit:.4f} mg",
                     "% Kadar"           : f"{mg_analit:.4f} / ({m_sampel:.4f} × 1000) × 100 = {persen:.4f} %",
                 }
@@ -967,7 +992,7 @@ elif menu == "🖩 Kalkulator Titrasi":
         st.markdown("### 📋 Ringkasan Rumus")
         if is_kompleks:
             formula_card("Rumus Kompleksometri", "% = (M_EDTA × V_EDTA × BM_logam × F) / (1000 × m_sampel) × 100%")
-            formula_card("Rasio reaksi", "mol logam : mol EDTA = 1 : 1")
+            formula_card("Rasio reaksi", "mol logam : mol EDTA = 1 : 1 (berlaku untuk semua valensi logam)")
         else:
             formula_card("Rumus Umum (N×V×BE)", "% = (N_titran × V_netto × BE_analit × F) / (1000 × m_sampel) × 100%")
             formula_card("V netto buret", "V_netto = V_akhir − V_awal")
