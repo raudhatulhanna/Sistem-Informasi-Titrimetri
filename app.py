@@ -537,9 +537,6 @@ if menu == "🏠 Beranda":
     </div>
     """, unsafe_allow_html=True)
 
-    quick_nav("beranda")
-
-
     col1, col2, col3, col4 = st.columns(4)
     for col, (k, v) in zip([col1, col2, col3, col4], DATA.items()):
         with col:
@@ -551,8 +548,7 @@ if menu == "🏠 Beranda":
             </div>
             """, unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.info("🔎 Gunakan sidebar atau tombol navigasi cepat untuk membuka materi.")
+    quick_nav("beranda")
 
     st.markdown("---")
     st.markdown("### 👩‍🔬 Tim Penyusun")
