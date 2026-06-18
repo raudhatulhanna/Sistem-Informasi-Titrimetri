@@ -807,13 +807,16 @@ elif menu == "🖩 Kalkulator Titrasi":
             ("NaOH", 40.00, 1),
             ("HCl", 36.46, 1),
             ("H₂SO₄", 98.08, 2),
-            ("H₂C₂O₄ (asam oksalat)", 90.03, 2),
+            ("H₂C₂O₄ anhidrat (BM=90.03)", 90.03, 2),
+            ("H₂C₂O₄·2H₂O / baku primer (BM=126.07)", 126.07, 2),
         ],
         "Redoks": [
             ("Fe²⁺ (besi(II))", 55.85, 1),
             ("H₂O₂ (hidrogen peroksida)", 34.01, 2),
-            ("KMnO₄ (permanganat)", 158.03, 5),
-            ("Na₂C₂O₄ (natrium oksalat)", 134.00, 2),
+            ("KMnO₄ suasana asam (n=5)", 158.03, 5),
+            ("KMnO₄ suasana netral (n=3)", 158.03, 3),
+            ("Na₂C₂O₄ (natrium oksalat, BM=134.00)", 134.00, 2),
+            ("K₂Cr₂O₇ (BM=294.18, n=6)", 294.18, 6),
         ],
         "Kompleksometri": [
             ("Ca²⁺ (kalsium)", 40.08, 2),
@@ -821,12 +824,14 @@ elif menu == "🖩 Kalkulator Titrasi":
             ("Zn²⁺ (seng)", 65.38, 2),
             ("Cu²⁺ (tembaga)", 63.55, 2),
             ("CaCO₃ (sebagai kesadahan)", 100.09, 2),
+            ("Pb²⁺ (timbal)", 207.20, 2),
         ],
         "Pengendapan": [
             ("Cl⁻ (klorida)", 35.45, 1),
             ("Br⁻ (bromida)", 79.90, 1),
             ("I⁻ (iodida)", 126.90, 1),
             ("SCN⁻ (tiosianat)", 58.08, 1),
+            ("Ag⁺ (perak)", 107.87, 1),
         ],
     }
 
@@ -847,20 +852,59 @@ elif menu == "🖩 Kalkulator Titrasi":
             val = next(o[2] for o in opts if o[0] == analit_choice)
             st.info(f"BM = {bm} g/mol | Valensi = {val} | BE = {bm/val:.4f} g/ekivalen")
 
-        N_titran      = st.number_input("Konsentrasi Titran (N)",  min_value=0.0001, value=0.1,    step=0.0001, format="%.4f")
-        V_titran      = st.number_input("Volume Titran (mL)",       min_value=0.01,   value=20.50,  step=0.01)
-        m_sampel      = st.number_input("Massa Sampel (g)",          min_value=0.0001, value=0.2500, step=0.0001, format="%.4f")
-        f_pengenceran = st.number_input("Faktor Pengenceran",         min_value=0.01,   value=1.0,    step=0.1)
+        # Mode konsentrasi: Kompleksometri pakai Molaritas, lainnya Normalitas
+        is_kompleks = (jenis_kal == "Kompleksometri")
+        satuan_konsen = "M (Molaritas)" if is_kompleks else "N (Normalitas)"
 
-        hitung = st.button("🧮 Hitung Kadar", use_container_width=True, type="primary")
+        st.markdown("**📏 Pembacaan Buret**")
+        col_v1, col_v2 = st.columns(2)
+        with col_v1:
+            V_awal  = st.number_input("Volume Awal (mL)",  min_value=0.00, max_value=50.00,
+                                       value=0.00, step=0.05, format="%.2f")
+        with col_v2:
+            V_akhir = st.number_input("Volume Akhir (mL)", min_value=0.00, max_value=50.00,
+                                       value=20.50, step=0.05, format="%.2f")
+
+        V_titran = V_akhir - V_awal
+        if V_titran <= 0:
+            st.error("⚠️ Volume akhir harus lebih besar dari volume awal!")
+        else:
+            st.success(f"✅ Volume Titran (V netto) = {V_akhir:.2f} – {V_awal:.2f} = **{V_titran:.2f} mL**")
+
+        C_titran      = st.number_input(f"Konsentrasi Titran ({satuan_konsen})",
+                                         min_value=0.0001, value=0.1, step=0.0001, format="%.4f")
+        m_sampel      = st.number_input("Massa Sampel (g)", min_value=0.0001, value=0.2500,
+                                         step=0.0001, format="%.4f")
+        f_pengenceran = st.number_input("Faktor Pengenceran", min_value=1.0, value=1.0, step=1.0,
+                                         help="Isi >1 jika sampel diencerkan. Contoh: labu 250 mL, pipet 25 mL → faktor = 10")
+
+        # Pilih referensi teoritis
+        d_kal = DATA[jenis_kal]
+        ref_labels = [f"{r[0]}  ({r[1]}%)" for r in d_kal["kadar_teoritis"]]
+        ref_choice  = st.selectbox("Bandingkan dengan kadar teoritis", ref_labels)
+        kadar_ref   = d_kal["kadar_teoritis"][ref_labels.index(ref_choice)][1]
+
+        hitung = st.button("🧮 Hitung Kadar", use_container_width=True, type="primary",
+                            disabled=(V_titran <= 0))
 
     with col_out:
         st.markdown("### 📊 Hasil Perhitungan")
-        if hitung:
-            BE        = bm / val
-            mmol_titran = N_titran * V_titran
-            mg_analit   = mmol_titran * BE * f_pengenceran
-            persen      = (N_titran * V_titran * BE * f_pengenceran) / (1000 * m_sampel) * 100
+        if hitung and V_titran > 0:
+            BE = bm / val
+
+            if is_kompleks:
+                # Kompleksometri: M × V(mL) × BM = mg logam  (rasio 1:1)
+                mmol_analit = C_titran * V_titran          # mmol logam
+                mg_analit   = mmol_analit * bm * f_pengenceran
+                persen      = mg_analit / (m_sampel * 1000) * 100
+                rumus_str   = "mmol logam = M_EDTA × V_EDTA"
+            else:
+                # Asam-Basa / Redoks / Pengendapan: N × V × BE
+                meq_titran  = C_titran * V_titran          # mEkivalen
+                mg_analit   = meq_titran * BE * f_pengenceran
+                persen      = mg_analit / (m_sampel * 1000) * 100
+                mmol_analit = meq_titran                   # untuk tampilan
+                rumus_str   = "mEkivalen = N_titran × V_titran"
 
             st.markdown(f"""
             <div style='background:#0d1b2e;border:1px solid {color_kal}55;border-radius:14px;
@@ -869,36 +913,48 @@ elif menu == "🖩 Kalkulator Titrasi":
                 Kadar Analit</div>
             <div style='color:{color_kal};font-family:DM Mono,monospace;font-size:2.2rem;
                         font-weight:700;margin:.3rem 0'>{persen:.4f} %</div>
-            <div style='color:#c8d8e8;font-size:.85rem'>{mg_analit:.3f} mg analit dalam sampel</div>
+            <div style='color:#c8d8e8;font-size:.85rem'>{mg_analit:.4f} mg analit dalam sampel</div>
             </div>""", unsafe_allow_html=True)
 
-            st.markdown("**Rincian Perhitungan:**")
-            langkah_hitung = {
-                "BE (Berat Ekivalen)": f"{bm}/{val} = {BE:.4f} g/ekivalen",
-                "mEkivalen titran":    f"{N_titran} N × {V_titran} mL = {mmol_titran:.4f} mEkivalen",
-                "mg analit":           f"{mmol_titran:.4f} × {BE:.4f} × {f_pengenceran} = {mg_analit:.4f} mg",
-                "% Kadar":             f"({mg_analit:.4f}) / ({m_sampel}×1000) × 100 = {persen:.4f} %",
-            }
+            st.markdown("**📐 Rincian Perhitungan:**")
+            if is_kompleks:
+                langkah_hitung = {
+                    "V netto titran"    : f"{V_akhir:.2f} – {V_awal:.2f} = {V_titran:.2f} mL",
+                    "mmol EDTA (= mmol logam)": f"{C_titran:.4f} M × {V_titran:.2f} mL = {C_titran*V_titran:.4f} mmol",
+                    "mg analit"         : f"{C_titran*V_titran:.4f} × {bm:.3f} × {f_pengenceran:.0f} = {mg_analit:.4f} mg",
+                    "% Kadar"           : f"{mg_analit:.4f} / ({m_sampel:.4f} × 1000) × 100 = {persen:.4f} %",
+                }
+            else:
+                langkah_hitung = {
+                    "V netto titran"  : f"{V_akhir:.2f} – {V_awal:.2f} = {V_titran:.2f} mL",
+                    "BE analit"       : f"{bm:.4f} / {val} = {BE:.4f} g/ekivalen",
+                    "mEkivalen titran": f"{C_titran:.4f} N × {V_titran:.2f} mL = {C_titran*V_titran:.4f} mEk",
+                    "mg analit"       : f"{C_titran*V_titran:.4f} × {BE:.4f} × {f_pengenceran:.0f} = {mg_analit:.4f} mg",
+                    "% Kadar"         : f"{mg_analit:.4f} / ({m_sampel:.4f} × 1000) × 100 = {persen:.4f} %",
+                }
             for k, v in langkah_hitung.items():
                 st.code(f"{k}: {v}", language=None)
 
-            # Bandingkan dengan kadar teoritis
-            st.markdown("**Perbandingan dengan Kadar Teoritis:**")
-            d_kal = DATA[jenis_kal]
-            teoritis_options = d_kal["kadar_teoritis"]
-            if teoritis_options:
-                kadar_ref = teoritis_options[0][1]
-                recovery = persen / kadar_ref * 100 if kadar_ref > 0 else None
-                if recovery:
-                    warna_rec = (
-                        "#aed581" if 98 <= recovery <= 102
-                        else ("#ffcc80" if 90 <= recovery <= 110 else "#f06292")
-                    )
-                    st.markdown(f"Kadar teoritis referensi: **{kadar_ref}%**")
-                    st.markdown(
-                        f"<span style='color:{warna_rec}'>% Recovery = {recovery:.2f}%</span>",
-                        unsafe_allow_html=True,
-                    )
+            # Recovery
+            st.markdown("**🎯 Perbandingan dengan Kadar Teoritis:**")
+            recovery = persen / kadar_ref * 100 if kadar_ref > 0 else None
+            if recovery:
+                warna_rec = (
+                    "#aed581" if 98 <= recovery <= 102
+                    else ("#ffcc80" if 90 <= recovery <= 110 else "#f06292")
+                )
+                interpretasi = (
+                    "Baik ✅" if 98 <= recovery <= 102
+                    else ("Dapat diterima ⚠️" if 90 <= recovery <= 110 else "Tidak dapat diterima ❌")
+                )
+                st.markdown(f"Referensi: **{ref_choice}**")
+                st.markdown(
+                    f"<div style='background:#1c2740;border-radius:10px;padding:.8rem 1rem;margin-top:.5rem;'>"
+                    f"<span style='color:{warna_rec};font-size:1.3rem;font-weight:700;'>% Recovery = {recovery:.2f}%</span>"
+                    f"<br><span style='color:#8899bb;font-size:.85rem;'>{interpretasi}</span>"
+                    f"</div>",
+                    unsafe_allow_html=True,
+                )
         else:
             st.markdown(
                 "<div style='color:#8899bb;text-align:center;padding:3rem;"
@@ -909,8 +965,13 @@ elif menu == "🖩 Kalkulator Titrasi":
 
         st.markdown("---")
         st.markdown("### 📋 Ringkasan Rumus")
-        formula_card("Rumus Umum", "% = (N × V × BE) / (1000 × m_sampel) × 100%")
-        if hitung:
-            formula_card("BE Analit", f"BE = {bm}/{val} = {bm/val:.4f} g/ekivalen")
+        if is_kompleks:
+            formula_card("Rumus Kompleksometri", "% = (M_EDTA × V_EDTA × BM_logam × F) / (1000 × m_sampel) × 100%")
+            formula_card("Rasio reaksi", "mol logam : mol EDTA = 1 : 1")
         else:
-            formula_card("BE Analit", "BE = BM / valensi")
+            formula_card("Rumus Umum (N×V×BE)", "% = (N_titran × V_netto × BE_analit × F) / (1000 × m_sampel) × 100%")
+            formula_card("V netto buret", "V_netto = V_akhir − V_awal")
+            if hitung:
+                formula_card("BE Analit", f"BE = {bm}/{val} = {bm/val:.4f} g/ekivalen")
+            else:
+                formula_card("BE Analit", "BE = BM / valensi (faktor ekivalen)")
