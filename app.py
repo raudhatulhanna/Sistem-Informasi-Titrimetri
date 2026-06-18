@@ -4,6 +4,7 @@ Jalankan: streamlit run app.py
 """
 
 import streamlit as st
+import pandas as pd
 import math
 
 # ─────────────────────────────────────────────
@@ -71,16 +72,16 @@ h1,h2,h3 { font-family: 'Playfair Display', serif !important; }
   font-weight: 600;
   margin: .2rem;
 }
-.home-card{
-  background:#111827;
-  border:1px solid #2a3a5c;
-  border-radius:12px;
-  padding:1.2rem;
-  text-align:center;
-  min-height:220px;
-  display:flex;
-  flex-direction:column;
-  justify-content:flex-start;
+.home-card {
+  background: #111827;
+  border: 1px solid #2a3a5c;
+  border-radius: 12px;
+  padding: 1.2rem;
+  text-align: center;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -88,7 +89,6 @@ h1,h2,h3 { font-family: 'Playfair Display', serif !important; }
 # ─────────────────────────────────────────────
 # DATA TITRASI
 # ─────────────────────────────────────────────
-
 DATA = {
     "Asam–Basa": {
         "warna": "#4fc3f7",
@@ -399,16 +399,16 @@ daftar_menu = [
     "⚗ Reaksi & Fasa",
     "📋 Bagan Kerja",
     "📊 Analisis & Kadar",
-    "🖩 Kalkulator Titrasi"
+    "🖩 Kalkulator Titrasi",
 ]
 
 menu = st.sidebar.selectbox(
     "Navigasi",
     daftar_menu,
-    index=daftar_menu.index(st.session_state.menu)
+    index=daftar_menu.index(st.session_state.menu),
 )
-
 st.session_state.menu = menu
+
 st.sidebar.markdown("---")
 st.sidebar.markdown("**Filter Jenis Titrasi**")
 jenis_selected = st.sidebar.selectbox(
@@ -420,7 +420,7 @@ jenis_selected = st.sidebar.selectbox(
 st.sidebar.markdown("---")
 st.sidebar.markdown(
     "<small style='color:#8899bb'>Sistem Informasi Titrimetri<br>Kimia Analitik Kuantitatif</small>",
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
 st.sidebar.markdown("---")
 st.sidebar.markdown("**👩‍🔬 Tim Penyusun**")
@@ -442,12 +442,14 @@ d = DATA[jenis_selected]
 def badge(text, color):
     return f"<span class='tag' style='background:{color}22;color:{color};border:1px solid {color}55'>{text}</span>"
 
+
 def info_card(title, content, color, icon="ℹ️"):
     st.markdown(f"""
     <div class='info-card' style='border-left-color:{color}'>
     <b style='color:{color}'>{icon} {title}</b><br>
     <span style='color:#c8d8e8'>{content}</span>
     </div>""", unsafe_allow_html=True)
+
 
 def formula_card(label, formula):
     st.markdown(f"""
@@ -456,19 +458,42 @@ def formula_card(label, formula):
     <code style='color:#4fc3f7;font-size:.95rem'>{formula}</code>
     </div>""", unsafe_allow_html=True)
 
+
 def reaction_card(rtype, rxn, color="#f06292"):
     st.markdown(f"""
     <div class='reaction-box' style='border-left-color:{color}'>
     <small style='color:{color};font-weight:600;letter-spacing:.08em'>{rtype}</small><br>
-    {rxn.replace(chr(10),'<br>')}
+    {rxn.replace(chr(10), '<br>')}
     </div>""", unsafe_allow_html=True)
+
+
+def quick_nav():
+    """Navigasi cepat 4 tombol — dipakai di beberapa halaman."""
+    n1, n2, n3, n4 = st.columns(4)
+    with n1:
+        if st.button("📚 Jenis Titrasi", use_container_width=True, key="nav_jenis"):
+            st.session_state.menu = "📚 Jenis & Deskripsi"
+            st.rerun()
+    with n2:
+        if st.button("⚗ Reaksi & Fasa", use_container_width=True, key="nav_reaksi"):
+            st.session_state.menu = "⚗ Reaksi & Fasa"
+            st.rerun()
+    with n3:
+        if st.button("📋 Bagan Kerja", use_container_width=True, key="nav_bagan"):
+            st.session_state.menu = "📋 Bagan Kerja"
+            st.rerun()
+    with n4:
+        if st.button("🖩 Kalkulator", use_container_width=True, key="nav_kalkulator"):
+            st.session_state.menu = "🖩 Kalkulator Titrasi"
+            st.rerun()
+
 
 # ─────────────────────────────────────────────
 # HALAMAN
 # ─────────────────────────────────────────────
 
+# ── 1. BERANDA ──────────────────────────────
 if menu == "🏠 Beranda":
-
     st.markdown("""
     <div class='hero-box'>
       <h1>⚗ Sistem Informasi Titrimetri</h1>
@@ -478,118 +503,51 @@ if menu == "🏠 Beranda":
     """, unsafe_allow_html=True)
 
     st.markdown("## 🧭 Navigasi Cepat")
-
-    n1, n2, n3, n4 = st.columns(4)
-
-    with n1:
-        if st.button("📚 Jenis Titrasi", use_container_width=True):
-            st.session_state.menu = "📚 Jenis & Deskripsi"
-            st.rerun()
-
-    with n2:
-        if st.button("⚗ Reaksi & Fasa", use_container_width=True):
-            st.session_state.menu = "⚗ Reaksi & Fasa"
-            st.rerun()
-
-    with n3:
-        if st.button("📋 Bagan Kerja", use_container_width=True):
-            st.session_state.menu = "📋 Bagan Kerja"
-            st.rerun()
-
-    with n4:
-        if st.button("🖩 Kalkulator", use_container_width=True):
-            st.session_state.menu = "🖩 Kalkulator Titrasi"
-            st.rerun()
+    quick_nav()
 
     st.markdown("---")
 
     col1, col2, col3, col4 = st.columns(4)
-
-    for col, (k, v) in zip(
-        [col1, col2, col3, col4],
-        DATA.items()
-    ):
+    for col, (k, v) in zip([col1, col2, col3, col4], DATA.items()):
         with col:
             st.markdown(f"""
-            <div class='home-card'
-            style='border-top:3px solid {v["warna"]};'>
-
-                <div style='font-size:2rem'>
-                    {v["emoji"]}
-                </div>
-
-                <b style='color:{v["warna"]}'>
-                    {k}
-                </b>
-
-                <p style='font-size:.82rem;
-                          color:#8899bb;
-                          margin-top:.5rem'>
-                    {v["deskripsi"][:80]}...
-                </p>
-
+            <div class='home-card' style='border-top:3px solid {v["warna"]};'>
+                <div style='font-size:2rem'>{v["emoji"]}</div>
+                <b style='color:{v["warna"]}'>{k}</b>
+                <p style='font-size:.82rem;color:#8899bb;margin-top:.5rem'>{v["deskripsi"][:80]}...</p>
             </div>
             """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
+    st.info("🔎 Gunakan sidebar atau tombol navigasi cepat untuk membuka materi.")
 
-    st.info(
-        "🔎 Gunakan sidebar atau tombol navigasi cepat untuk membuka materi."
-    )
-
-    # Tim Penyusun
     st.markdown("---")
     st.markdown("### 👩‍🔬 Tim Penyusun")
 
     tim = [
-        ("AS", "Airin Syahprina", "2560559", "#4fc3f7"),
+        ("AS", "Airin Syahprina",    "2560559", "#4fc3f7"),
         ("AD", "Aliifah Dhiyaavina", "2560564", "#f06292"),
-        ("IN", "Ike Nurcahya", "2560642", "#aed581"),
-        ("NA", "Nadyanka Amalia", "2560697", "#ffcc80"),
-        ("RH", "Raudhatul Hanna", "2560747", "#ce93d8"),
+        ("IN", "Ike Nurcahya",       "2560642", "#aed581"),
+        ("NA", "Nadyanka Amalia",    "2560697", "#ffcc80"),
+        ("RH", "Raudhatul Hanna",    "2560747", "#ce93d8"),
     ]
 
     cols = st.columns(5)
-
     for col, (inisial, nama, nim, warna) in zip(cols, tim):
         with col:
             st.markdown(f"""
-            <div style="
-                background:#111827;
-                border:1px solid #2a3a5c;
-                border-top:3px solid {warna};
-                border-radius:14px;
-                padding:1rem;
-                text-align:center;">
-
-                <div style="
-                    width:48px;
-                    height:48px;
-                    border-radius:50%;
-                    background:{warna};
-                    margin:auto;
-                    line-height:48px;
-                    font-weight:bold;
-                    color:black;">
+            <div style="background:#111827;border:1px solid #2a3a5c;border-top:3px solid {warna};
+                        border-radius:14px;padding:1rem;text-align:center;">
+                <div style="width:48px;height:48px;border-radius:50%;background:{warna};
+                            margin:auto;line-height:48px;font-weight:bold;color:black;">
                     {inisial}
                 </div>
-
-                <div style="
-                    margin-top:.7rem;
-                    color:white;
-                    font-size:.85rem;">
-                    {nama}
-                </div>
-
-                <div style="
-                    color:#8899bb;
-                    font-size:.75rem;">
-                    {nim}
-                </div>
-
+                <div style="margin-top:.7rem;color:white;font-size:.85rem;">{nama}</div>
+                <div style="color:#8899bb;font-size:.75rem;">{nim}</div>
             </div>
             """, unsafe_allow_html=True)
-        
+
+# ── 2. JENIS & DESKRIPSI ────────────────────
 elif menu == "📚 Jenis & Deskripsi":
     color = d["warna"]
     st.markdown(f"# {d['emoji']} Titrasi {jenis_selected}")
@@ -612,6 +570,7 @@ elif menu == "📚 Jenis & Deskripsi":
             <small style='color:#aac'>{keterangan}</small>
             </div>""", unsafe_allow_html=True)
 
+# ── 3. ALAT & BAHAN ─────────────────────────
 elif menu == "🔧 Alat & Bahan":
     color = d["warna"]
     st.markdown(f"# 🔧 Alat & Bahan — Titrasi {jenis_selected}")
@@ -619,25 +578,26 @@ elif menu == "🔧 Alat & Bahan":
 
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown(f"### 🔧 Alat Laboratorium")
+        st.markdown("### 🔧 Alat Laboratorium")
         for a in d["alat"]:
             st.markdown(f"- {a}")
 
     with col2:
-        st.markdown(f"### 🧪 Bahan & Reagen")
+        st.markdown("### 🧪 Bahan & Reagen")
         for b in d["bahan"]:
             st.markdown(f"- {b}")
 
     st.markdown("---")
     st.markdown("### 💡 Catatan Penting")
     catatan = {
-        "Asam–Basa": "Gunakan aquades bebas CO₂ untuk mencegah gangguan pada titrasi dengan indikator PP. Buret harus dibilas dengan NaOH sebelum diisi.",
-        "Redoks": "KMnO₄ dapat merusak karet pada buret — gunakan buret coklat dengan ujung kaca. Saring KMnO₄ untuk menghilangkan MnO₂ sebelum standarisasi.",
+        "Asam–Basa":      "Gunakan aquades bebas CO₂ untuk mencegah gangguan pada titrasi dengan indikator PP. Buret harus dibilas dengan NaOH sebelum diisi.",
+        "Redoks":         "KMnO₄ dapat merusak karet pada buret — gunakan buret coklat dengan ujung kaca. Saring KMnO₄ untuk menghilangkan MnO₂ sebelum standarisasi.",
         "Kompleksometri": "EDTA membentuk endapan dengan beberapa logam pada pH rendah. Selalu atur pH dengan buffer yang tepat sesuai analit target.",
-        "Pengendapan": "Lindungi larutan AgNO₃ dari cahaya (gunakan botol/buret coklat). Metode Mohr tidak cocok untuk Br⁻, I⁻, CN⁻ karena pembentukan Ag₂CrO₄ terganggu.",
+        "Pengendapan":    "Lindungi larutan AgNO₃ dari cahaya (gunakan botol/buret coklat). Metode Mohr tidak cocok untuk Br⁻, I⁻, CN⁻ karena pembentukan Ag₂CrO₄ terganggu.",
     }
     st.info(catatan.get(jenis_selected, ""))
 
+# ── 4. RUMUS & FORMULA ──────────────────────
 elif menu == "🧮 Rumus & Formula":
     color = d["warna"]
     st.markdown(f"# 🧮 Rumus Titrasi {jenis_selected}")
@@ -657,15 +617,16 @@ elif menu == "🧮 Rumus & Formula":
         st.markdown("""
         | Simbol | Keterangan | Satuan |
         |---|---|---|
-        | N | Normalitas larutan | ekivalen/L (N) |
-        | M | Molaritas larutan | mol/L (M) |
-        | V | Volume larutan | mL |
-        | BE | Berat ekivalen | g/ekivalen |
-        | BM | Berat molekul | g/mol |
-        | m | Massa sampel | gram |
-        | val | Valensi / faktor ekivalen | – |
+        | N  | Normalitas larutan | ekivalen/L (N) |
+        | M  | Molaritas larutan  | mol/L (M)      |
+        | V  | Volume larutan     | mL             |
+        | BE | Berat ekivalen     | g/ekivalen     |
+        | BM | Berat molekul      | g/mol          |
+        | m  | Massa sampel       | gram           |
+        | val| Valensi / faktor ekivalen | –       |
         """)
 
+# ── 5. REAKSI & FASA ────────────────────────
 elif menu == "⚗ Reaksi & Fasa":
     color = d["warna"]
     st.markdown(f"# ⚗ Reaksi Kimia & Fasa — Titrasi {jenis_selected}")
@@ -677,46 +638,25 @@ elif menu == "⚗ Reaksi & Fasa":
 
     st.markdown("---")
     st.markdown("### Fasa Zat dalam Titrasi")
+
     tabel_fase = {"Zat": [], "Fasa": [], "Keterangan": []}
     for zat, fasa, ket in d["fase"]:
         tabel_fase["Zat"].append(zat)
         tabel_fase["Fasa"].append(fasa)
         tabel_fase["Keterangan"].append(ket)
 
-    import pandas as pd
     df_fase = pd.DataFrame(tabel_fase)
-    st.markdown("## 🧭 Navigasi Cepat")
-
-n1,n2,n3,n4 = st.columns(4)
-
-with n1:
-    if st.button("📚 Jenis Titrasi", use_container_width=True):
-        st.session_state.menu = "📚 Jenis & Deskripsi"
-        st.rerun()
-
-with n2:
-    if st.button("⚗ Reaksi & Fasa", use_container_width=True):
-        st.session_state.menu = "⚗ Reaksi & Fasa"
-        st.rerun()
-
-with n3:
-    if st.button("📋 Bagan Kerja", use_container_width=True):
-        st.session_state.menu = "📋 Bagan Kerja"
-        st.rerun()
-
-with n4:
-    if st.button("🖩 Kalkulator", use_container_width=True):
-        st.session_state.menu = "🖩 Kalkulator Titrasi"
-        st.rerun()
+    st.dataframe(df_fase, use_container_width=True, hide_index=True)
 
     st.markdown("---")
     st.markdown("### 📖 Notasi Fasa")
-    col1,col2,col3,col4 = st.columns(4)
+    col1, col2, col3, col4 = st.columns(4)
     col1.metric("(aq)", "Terlarut dalam air")
-    col2.metric("(s)", "Padatan / endapan")
-    col3.metric("(l)", "Cair murni (seperti H₂O)")
-    col4.metric("(g)", "Gas")
+    col2.metric("(s)",  "Padatan / endapan")
+    col3.metric("(l)",  "Cair murni (seperti H₂O)")
+    col4.metric("(g)",  "Gas")
 
+# ── 6. BAGAN KERJA ──────────────────────────
 elif menu == "📋 Bagan Kerja":
     color = d["warna"]
     st.markdown(f"# 📋 Bagan Kerja — Titrasi {jenis_selected}")
@@ -743,29 +683,56 @@ elif menu == "📋 Bagan Kerja":
             </div>
             """, unsafe_allow_html=True)
 
+# ── 7. ANALISIS & KADAR ─────────────────────
 elif menu == "📊 Analisis & Kadar":
     color = d["warna"]
     st.markdown(f"# 📊 Analisis Hasil & Kadar Teoritis — {jenis_selected}")
     st.markdown("---")
 
     st.markdown("### 📐 Kadar Teoritis Analit")
-    import pandas as pd
     df_teoritis = pd.DataFrame(d["kadar_teoritis"], columns=["Senyawa / Sampel", "Kadar Teoritis (%)"])
     st.dataframe(df_teoritis, use_container_width=True, hide_index=True)
 
     st.markdown("---")
     col1, col2 = st.columns(2)
+
     with col1:
         st.markdown("### 🎯 Akurasi & Presisi")
-        info_card("% Recovery", "% Recovery = (C_terukur / C_teoritis) × 100%<br>Kriteria baik: 98–102%", color, "🎯")
-        info_card("RSD (Relative Std Deviation)", "RSD = (SD / rata-rata) × 100%<br>Kriteria baik: RSD < 2%", color, "📉")
+        info_card("% Recovery",
+                  "% Recovery = (C_terukur / C_teoritis) × 100%<br>Kriteria baik: 98–102%",
+                  color, "🎯")
+        info_card("RSD (Relative Std Deviation)",
+                  "RSD = (SD / rata-rata) × 100%<br>Kriteria baik: RSD < 2%",
+                  color, "📉")
+
     with col2:
         st.markdown("### ⚠️ Sumber Kesalahan")
         kesalahan = {
-            "Asam–Basa": ["Aquades mengandung CO₂", "Pembacaan buret paralaks", "Indikator berlebih (terlalu banyak tetes)", "NaOH menyerap CO₂ dari udara", "Titik akhir terlewat (terlalu pink)"],
-            "Redoks": ["KMnO₄ terurai oleh cahaya/panas", "Suhu terlalu rendah (reaksi lambat)", "Amilum ditambah terlalu awal (iodometri)", "Oksidasi I⁻ oleh udara sebelum titrasi"],
-            "Kompleksometri": ["pH tidak tepat → kompleks tidak sempurna", "Gangguan ion pengganggu (Al³⁺, Fe³⁺)", "Indikator terdegradasi (EBT lama)", "Kelebihan inhibitor mengganggu"],
-            "Pengendapan": ["AgNO₃ terurai oleh cahaya (fotolisis)", "pH di luar range Mohr (6.5–9)", "Adsorpsi berlebih pada endapan (Fajans)", "Blanko tidak dikoreksi"],
+            "Asam–Basa": [
+                "Aquades mengandung CO₂",
+                "Pembacaan buret paralaks",
+                "Indikator berlebih (terlalu banyak tetes)",
+                "NaOH menyerap CO₂ dari udara",
+                "Titik akhir terlewat (terlalu pink)",
+            ],
+            "Redoks": [
+                "KMnO₄ terurai oleh cahaya/panas",
+                "Suhu terlalu rendah (reaksi lambat)",
+                "Amilum ditambah terlalu awal (iodometri)",
+                "Oksidasi I⁻ oleh udara sebelum titrasi",
+            ],
+            "Kompleksometri": [
+                "pH tidak tepat → kompleks tidak sempurna",
+                "Gangguan ion pengganggu (Al³⁺, Fe³⁺)",
+                "Indikator terdegradasi (EBT lama)",
+                "Kelebihan inhibitor mengganggu",
+            ],
+            "Pengendapan": [
+                "AgNO₃ terurai oleh cahaya (fotolisis)",
+                "pH di luar range Mohr (6.5–9)",
+                "Adsorpsi berlebih pada endapan (Fajans)",
+                "Blanko tidak dikoreksi",
+            ],
         }
         for k in kesalahan.get(jenis_selected, []):
             st.markdown(f"- ⚠️ {k}")
@@ -775,13 +742,14 @@ elif menu == "📊 Analisis & Kadar":
     st.markdown("""
     | % Recovery | Interpretasi |
     |---|---|
-    | < 90% | Hasil rendah — kemungkinan analit hilang atau reaksi tidak sempurna |
-    | 90–97% | Dapat diterima untuk analisis rutin dengan koreksi |
-    | 98–102% | **Baik** — memenuhi kriteria presisi dan akurasi |
-    | 103–110% | Hasil tinggi — kemungkinan kontaminasi atau interferensi |
-    | > 110% | Tidak dapat diterima — periksa prosedur dan reagen |
+    | < 90%     | Hasil rendah — kemungkinan analit hilang atau reaksi tidak sempurna |
+    | 90–97%    | Dapat diterima untuk analisis rutin dengan koreksi |
+    | 98–102%   | **Baik** — memenuhi kriteria presisi dan akurasi |
+    | 103–110%  | Hasil tinggi — kemungkinan kontaminasi atau interferensi |
+    | > 110%    | Tidak dapat diterima — periksa prosedur dan reagen |
     """)
 
+# ── 8. KALKULATOR TITRASI ───────────────────
 elif menu == "🖩 Kalkulator Titrasi":
     st.markdown("# 🖩 Kalkulator Titrasi")
     st.markdown("Hitung kadar analit berdasarkan data titrasi secara otomatis.")
@@ -789,103 +757,116 @@ elif menu == "🖩 Kalkulator Titrasi":
 
     col_in, col_out = st.columns([1, 1])
 
+    analit_opts = {
+        "Asam–Basa": [
+            ("Asam asetat (CH₃COOH)", 60.05, 1),
+            ("NaOH", 40.00, 1),
+            ("HCl", 36.46, 1),
+            ("H₂SO₄", 98.08, 2),
+            ("H₂C₂O₄ (asam oksalat)", 90.03, 2),
+        ],
+        "Redoks": [
+            ("Fe²⁺ (besi(II))", 55.85, 1),
+            ("H₂O₂ (hidrogen peroksida)", 34.01, 2),
+            ("KMnO₄ (permanganat)", 158.03, 5),
+            ("Na₂C₂O₄ (natrium oksalat)", 134.00, 2),
+        ],
+        "Kompleksometri": [
+            ("Ca²⁺ (kalsium)", 40.08, 2),
+            ("Mg²⁺ (magnesium)", 24.31, 2),
+            ("Zn²⁺ (seng)", 65.38, 2),
+            ("Cu²⁺ (tembaga)", 63.55, 2),
+            ("CaCO₃ (sebagai kesadahan)", 100.09, 2),
+        ],
+        "Pengendapan": [
+            ("Cl⁻ (klorida)", 35.45, 1),
+            ("Br⁻ (bromida)", 79.90, 1),
+            ("I⁻ (iodida)", 126.90, 1),
+            ("SCN⁻ (tiosianat)", 58.08, 1),
+        ],
+    }
+
     with col_in:
         st.markdown("### ⚙️ Input Data")
         jenis_kal = st.selectbox("Jenis Titrasi", list(DATA.keys()))
         color_kal = DATA[jenis_kal]["warna"]
-
-        analit_opts = {
-            "Asam–Basa": [
-                ("Asam asetat (CH₃COOH)", 60.05, 1),
-                ("NaOH", 40.00, 1),
-                ("HCl", 36.46, 1),
-                ("H₂SO₄", 98.08, 2),
-                ("H₂C₂O₄ (asam oksalat)", 90.03, 2),
-            ],
-            "Redoks": [
-                ("Fe²⁺ (besi(II))", 55.85, 1),
-                ("H₂O₂ (hidrogen peroksida)", 34.01, 2),
-                ("KMnO₄ (permanganat)", 158.03, 5),
-                ("Na₂C₂O₄ (natrium oksalat)", 134.00, 2),
-            ],
-            "Kompleksometri": [
-                ("Ca²⁺ (kalsium)", 40.08, 2),
-                ("Mg²⁺ (magnesium)", 24.31, 2),
-                ("Zn²⁺ (seng)", 65.38, 2),
-                ("Cu²⁺ (tembaga)", 63.55, 2),
-                ("CaCO₃ (sebagai kesadahan)", 100.09, 2),
-            ],
-            "Pengendapan": [
-                ("Cl⁻ (klorida)", 35.45, 1),
-                ("Br⁻ (bromida)", 79.90, 1),
-                ("I⁻ (iodida)", 126.90, 1),
-                ("SCN⁻ (tiosianat)", 58.08, 1),
-            ],
-        }
 
         opts = analit_opts[jenis_kal]
         opt_labels = [o[0] for o in opts] + ["Custom..."]
         analit_choice = st.selectbox("Analit", opt_labels)
 
         if analit_choice == "Custom...":
-            bm = st.number_input("BM Analit (g/mol)", min_value=1.0, value=60.05, step=0.01)
+            bm  = st.number_input("BM Analit (g/mol)", min_value=1.0, value=60.05, step=0.01)
             val = st.number_input("Valensi / Faktor Ekivalen", min_value=1, value=1)
         else:
-            bm = next(o[1] for o in opts if o[0]==analit_choice)
-            val = next(o[2] for o in opts if o[0]==analit_choice)
+            bm  = next(o[1] for o in opts if o[0] == analit_choice)
+            val = next(o[2] for o in opts if o[0] == analit_choice)
             st.info(f"BM = {bm} g/mol | Valensi = {val} | BE = {bm/val:.4f} g/ekivalen")
 
-        N_titran = st.number_input("Konsentrasi Titran (N)", min_value=0.0001, value=0.1, step=0.0001, format="%.4f")
-        V_titran = st.number_input("Volume Titran (mL)", min_value=0.01, value=20.50, step=0.01)
-        m_sampel = st.number_input("Massa Sampel (g)", min_value=0.0001, value=0.2500, step=0.0001, format="%.4f")
-        f_pengenceran = st.number_input("Faktor Pengenceran", min_value=0.01, value=1.0, step=0.1)
+        N_titran      = st.number_input("Konsentrasi Titran (N)",  min_value=0.0001, value=0.1,    step=0.0001, format="%.4f")
+        V_titran      = st.number_input("Volume Titran (mL)",       min_value=0.01,   value=20.50,  step=0.01)
+        m_sampel      = st.number_input("Massa Sampel (g)",          min_value=0.0001, value=0.2500, step=0.0001, format="%.4f")
+        f_pengenceran = st.number_input("Faktor Pengenceran",         min_value=0.01,   value=1.0,    step=0.1)
 
         hitung = st.button("🧮 Hitung Kadar", use_container_width=True, type="primary")
 
     with col_out:
         st.markdown("### 📊 Hasil Perhitungan")
         if hitung:
-            BE = bm / val
+            BE        = bm / val
             mmol_titran = N_titran * V_titran
-            mg_analit = mmol_titran * BE * f_pengenceran
-            persen = (N_titran * V_titran * BE * f_pengenceran) / (1000 * m_sampel) * 100
+            mg_analit   = mmol_titran * BE * f_pengenceran
+            persen      = (N_titran * V_titran * BE * f_pengenceran) / (1000 * m_sampel) * 100
 
             st.markdown(f"""
-            <div style='background:#0d1b2e;border:1px solid {color_kal}55;border-radius:14px;padding:1.5rem;margin-bottom:1rem;'>
-            <div style='color:#8899bb;font-size:.8rem;text-transform:uppercase;letter-spacing:.1em'>Kadar Analit</div>
-            <div style='color:{color_kal};font-family:DM Mono,monospace;font-size:2.2rem;font-weight:700;margin:.3rem 0'>
-            {persen:.4f} %</div>
+            <div style='background:#0d1b2e;border:1px solid {color_kal}55;border-radius:14px;
+                        padding:1.5rem;margin-bottom:1rem;'>
+            <div style='color:#8899bb;font-size:.8rem;text-transform:uppercase;letter-spacing:.1em'>
+                Kadar Analit</div>
+            <div style='color:{color_kal};font-family:DM Mono,monospace;font-size:2.2rem;
+                        font-weight:700;margin:.3rem 0'>{persen:.4f} %</div>
             <div style='color:#c8d8e8;font-size:.85rem'>{mg_analit:.3f} mg analit dalam sampel</div>
             </div>""", unsafe_allow_html=True)
 
             st.markdown("**Rincian Perhitungan:**")
-            langkah = {
+            langkah_hitung = {
                 "BE (Berat Ekivalen)": f"{bm}/{val} = {BE:.4f} g/ekivalen",
-                "mEkivalen titran": f"{N_titran} N × {V_titran} mL = {mmol_titran:.4f} mEkivalen",
-                "mg analit": f"{mmol_titran:.4f} × {BE:.4f} × {f_pengenceran} = {mg_analit:.4f} mg",
-                "% Kadar": f"({mg_analit:.4f}) / ({m_sampel}×1000) × 100 = {persen:.4f} %",
+                "mEkivalen titran":    f"{N_titran} N × {V_titran} mL = {mmol_titran:.4f} mEkivalen",
+                "mg analit":           f"{mmol_titran:.4f} × {BE:.4f} × {f_pengenceran} = {mg_analit:.4f} mg",
+                "% Kadar":             f"({mg_analit:.4f}) / ({m_sampel}×1000) × 100 = {persen:.4f} %",
             }
-            for k, v in langkah.items():
+            for k, v in langkah_hitung.items():
                 st.code(f"{k}: {v}", language=None)
 
             # Bandingkan dengan kadar teoritis
             st.markdown("**Perbandingan dengan Kadar Teoritis:**")
-            teoritis_options = d["kadar_teoritis"]
+            d_kal = DATA[jenis_kal]
+            teoritis_options = d_kal["kadar_teoritis"]
             if teoritis_options:
                 kadar_ref = teoritis_options[0][1]
                 recovery = persen / kadar_ref * 100 if kadar_ref > 0 else None
                 if recovery:
-                    warna_rec = "#aed581" if 98 <= recovery <= 102 else ("#ffcc80" if 90 <= recovery <= 110 else "#f06292")
+                    warna_rec = (
+                        "#aed581" if 98 <= recovery <= 102
+                        else ("#ffcc80" if 90 <= recovery <= 110 else "#f06292")
+                    )
                     st.markdown(f"Kadar teoritis referensi: **{kadar_ref}%**")
-                    st.markdown(f"<span style='color:{warna_rec}'>% Recovery = {recovery:.2f}%</span>", unsafe_allow_html=True)
+                    st.markdown(
+                        f"<span style='color:{warna_rec}'>% Recovery = {recovery:.2f}%</span>",
+                        unsafe_allow_html=True,
+                    )
         else:
             st.markdown(
-                "<div style='color:#8899bb;text-align:center;padding:3rem;border:1px dashed #2a3a5c;border-radius:12px;'>"
+                "<div style='color:#8899bb;text-align:center;padding:3rem;"
+                "border:1px dashed #2a3a5c;border-radius:12px;'>"
                 "Isi input di sebelah kiri, lalu klik <b>Hitung Kadar</b></div>",
-                unsafe_allow_html=True
+                unsafe_allow_html=True,
             )
 
         st.markdown("---")
         st.markdown("### 📋 Ringkasan Rumus")
         formula_card("Rumus Umum", "% = (N × V × BE) / (1000 × m_sampel) × 100%")
-        formula_card("BE Analit", f"BE = {bm}/{val} = {bm/val:.4f} g/ekivalen" if hitung else "BE = BM / valensi")
+        if hitung:
+            formula_card("BE Analit", f"BE = {bm}/{val} = {bm/val:.4f} g/ekivalen")
+        else:
+            formula_card("BE Analit", "BE = BM / valensi")
